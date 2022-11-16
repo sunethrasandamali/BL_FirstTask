@@ -1,0 +1,85 @@
+﻿@page "/videos"
+
+@using MudBlazor;
+@using Video_Library.Data
+@inject MudBlazor.ISnackbar Snackbar
+@inject VideoService VideoService;
+
+<MudTextField @bind-Value="video.Title" Label="Video Title" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+<MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="Save">Save</MudButton>
+
+<hr />
+
+
+
+<MudTable Items="@GetVideos()" Dense="@dense" Hover="@hover" Filter="new Func<Video,bool>(FilterFun)" @bind-member="video">
+	<ToolBarContent>
+		<MudText Typo="Typo.h6">Video List</MudText>
+		<MudSpacer />
+		<MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+	</ToolBarContent>
+	<HeaderContent>
+		<MudTh>Video Id</MudTh>
+		<MudTh>Borrow Id</MudTh>
+		<MudTh>Title</MudTh>
+		<MudTh>Action</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="VId">@context.VId</MudTd>
+		<MudTd DataLabel="BId">@context.BId</MudTd>
+		<MudTd DataLabel="Title">@context.Title</MudTd>
+		<MudTd DataLabel=" ">
+			<MudFab @onclick="@(() => Edit(@context.VId))" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" />
+			<MudFab @onclick="@(() => Delete(@context.VId))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small" />
+			
+		</MudTd>
+	</RowTemplate>
+	<PagerContent>
+		<MudTablePager />
+	</PagerContent>
+</MudTable>
+<MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+<MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+<MudText Inline="true" Class="align-self-center">Selected: @video?.Title</MudText>
+
+@code {
+	private bool dense = false;
+	private bool hover = true;
+	private string searchString = "";
+
+	private Video video = new Video();
+	private List<Video> videos = new List<Video>();
+
+	protected override async void OnInitialized()
+	{
+		GetVideos();
+	}
+	private void Edit(int id)
+	{
+		//
+	}
+
+	private void Delete(int id)
+	{
+		//
+	}
+
+	private void Save()
+	{
+		//
+	}
+	//get all videos
+	private List<Video> GetVideos()
+	{
+		videos = VideoService.GetAllVideos();
+		return videos;
+	}
+
+	private bool FilterFun(Video Video)
+	{
+		if (string.IsNullOrWhiteSpace(searchString)) return true;
+		if (Video.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+		return false;
+	}
+}
+

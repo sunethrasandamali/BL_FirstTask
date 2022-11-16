@@ -1,0 +1,113 @@
+﻿@page "/member"
+
+@using MudBlazor
+@using Video_Library.Data
+@*@inject Video_Library.IService.IMemberService MemberService*@
+@inject MudBlazor.ISnackbar Snackbar
+@inject MemberService MemberService;
+
+<MudTextField @bind-Value = "member.Fname" Label="Member First Name" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+<MudTextField @bind-Value="member.Lname" Label="Member Last Name" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+<MudTextField @bind-Value="member.Phone" Label="Member Phone Number" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+<MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="Save">Save</MudButton>
+
+<hr />
+
+
+
+<MudTable Items="@GetMembers()" Dense="@dense" Hover="@hover" Filter="new Func<Member,bool>(FilterFun)" @bind-member="member">
+	<ToolBarContent>
+		<MudText Typo="Typo.h6">Member List</MudText>
+		<MudSpacer />
+		<MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+	</ToolBarContent>
+	<HeaderContent>
+		<MudTh>MemberId</MudTh>
+		<MudTh>Fname</MudTh>
+		<MudTh>Lname</MudTh>
+		<MudTh>Phone</MudTh>
+		<MudTh>Action</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="MemberId">@context.MemberId</MudTd>
+		<MudTd DataLabel="Fname">@context.Fname</MudTd>
+		<MudTd DataLabel="Lname">@context.Lname</MudTd>
+		<MudTd DataLabel="Phone">@context.Phone</MudTd>
+		<MudTd DataLabel=" ">
+
+			<MudFab @onclick="@(() => Edit(@context.MemberId))" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" />
+			<MudFab @onclick="@(() => Delete(@context.MemberId))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small" />
+		</MudTd>
+	</RowTemplate>
+	<PagerContent>
+		<MudTablePager />
+	</PagerContent>
+</MudTable>
+	<MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+	<MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+	<MudText Inline="true" Class="align-self-center">Selected: @member?.Fname</MudText>
+
+	
+	
+
+
+@code{
+	private bool dense = false;
+	private bool hover = true;
+	private string searchString = "";
+
+	private Member member = new Member();
+	private List<Member> members = new List<Member>();
+
+	protected override void OnInitialized()
+	{
+		GetMembers();
+	}
+
+	//get all members
+	private List<Member> GetMembers()
+	{
+		members = MemberService.GetAllMembers();
+		return members;
+	}
+
+	private bool FilterFun(Member Member)
+	{
+		if (string.IsNullOrWhiteSpace(searchString)) return true;
+		if (Member.Fname.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+		if (Member.Lname.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+		return false;
+	}
+
+	//save members when update and insert the data
+	private void Save()
+	{
+		bool resx = false;
+		if(member.MemberId == 0){
+			resx = MemberService.InsertMember(member);
+		}else{
+			resx = MemberService.UpdateMember(member);
+		}
+		//MemberService.InsertMember(member);
+		member = new Member();
+		if(resx){
+			Snackbar.Add("Member Saved", Severity.Success);
+		}
+		GetMembers();
+	}
+
+	//edit a member
+	private void Edit(int MemberId)
+	{
+		member = members.FirstOrDefault(x => x.MemberId == MemberId);
+	}
+
+	//delete a member using id
+
+	private void Delete(int MemberId)
+	{
+		MemberService.DeleteMember(member);
+		Snackbar.Add("Member Deleted", Severity.Warning);
+		GetMembers();
+	}
+}

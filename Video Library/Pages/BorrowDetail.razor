@@ -1,0 +1,85 @@
+﻿@page "/borrowdetails"
+
+@using MudBlazor
+@using Video_Library.Data
+@inject MudBlazor.ISnackbar Snackbar
+@inject BorrowDataService BorrowDataService;
+
+<MudTextField @bind-Value="borrowdata.BDate" Label="Borrowed Date" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+<MudTextField @bind-Value="borrowdata.RDate" Label="Received Date" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+<MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="Save">Save</MudButton>
+
+<hr />
+
+<MudTable Items="@GetBDetails()" Dense="@dense" Hover="@hover" Filter="new Func<BorrowData,bool>(FilterFun)" @bind-member="borrowdata">
+	<ToolBarContent>
+		<MudText Typo="Typo.h6">Borrow Details</MudText>
+		<MudSpacer />
+		<MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+	</ToolBarContent>
+	<HeaderContent>
+		<MudTh>Borrow Id</MudTh>
+		<MudTh>Member Id</MudTh>
+		<MudTh>Borrowed Date</MudTh>
+		<MudTh>Received Date</MudTh>
+		<MudTh>Action</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="BId">@context.BId</MudTd>
+		<MudTd DataLabel="MemberId">@context.MemberId</MudTd>
+		<MudTd DataLabel="BDate">@context.BDate</MudTd>
+		<MudTd DataLabel="RDate">@context.RDate</MudTd>
+		<MudTd DataLabel=" ">
+			<MudFab @onclick="@(() => Edit(@context.BId))" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" />
+			<MudFab @onclick="@(() => Delete(@context.BId))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small" />
+			
+		</MudTd>
+	</RowTemplate>
+	<PagerContent>
+		<MudTablePager />
+	</PagerContent>
+</MudTable>
+<MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+<MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+<MudText Inline="true" Class="align-self-center">Selected: @borrowdata?.BDate</MudText>
+<MudText Inline="true" Class="align-self-center">Selected: @borrowdata?.RDate</MudText>
+
+@code {
+	private bool dense = false;
+	private bool hover = true;
+	private string searchString = "";
+
+	private BorrowData borrowdata = new BorrowData();
+	private List<BorrowData> borrowdatas = new List<BorrowData>();
+
+	protected override async void OnInitialized()
+	{
+		GetBDetails();
+	}
+	private void Edit(int id)
+	{
+		//
+	}
+	private void Delete(int id)
+	{
+		//
+	}
+	private void Save()
+	{
+		//
+	}
+	//get all borrowed details
+	private List<BorrowData> GetBDetails()
+	{
+		borrowdatas = BorrowDataService.GetAllBDetails();
+		return borrowdatas;
+	}
+
+	private bool FilterFun(BorrowData BorrowData)
+	{
+		if (string.IsNullOrWhiteSpace(searchString)) return true;
+		//if (BorrowData.BDate.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+		return false;
+	}
+}
+
